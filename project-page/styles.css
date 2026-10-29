@@ -701,17 +701,21 @@ figure .figure, .figure figcaption { max-width: 100%; width: 100%; box-sizing: b
 .brand-short { display: none; }
 
 @media (max-width: 720px) {
-  .brand-long { display: none; }
-  .brand-short { display: inline; }
-  .nav-inner { gap: 12px; padding: 0 14px; }
-  .nav-links { gap: 14px; }
+  /* full name on phones too: brand on its own row, links scroll beneath it */
+  .brand-long { display: inline; }
+  .brand-short { display: none; }
+  .nav-inner { flex-direction: column; align-items: stretch; height: auto;
+               padding: 9px 16px 3px; gap: 0; }
+  .nav-brand { font-size: .92rem; }
+  .nav-links { gap: 16px; font-size: .8rem; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .nav-links::-webkit-scrollbar { display: none; }
   .nav-links a { padding: 9px 0; display: inline-block; }   /* bigger tap targets */
   .wrap { padding: 0 16px; }
   .hero { padding: 48px 0 18px; }
   .hero h1 { font-size: clamp(1.95rem, 8.4vw, 2.5rem); }
   .authors { font-size: .95rem; line-height: 1.75; }
   .cta { gap: 8px; }
-  .section { padding: 44px 0; scroll-margin-top: 64px; }
+  .section { padding: 44px 0; scroll-margin-top: 96px; }
   .section h2 { font-size: 1.6rem; }
   .step, .claim { padding: 22px 18px; }
   .eq { padding: 10px 8px; }
@@ -720,7 +724,7 @@ figure .figure, .figure figcaption { max-width: 100%; width: 100%; box-sizing: b
 }
 
 @media (max-width: 420px) {
-  .nav-links { gap: 10px; font-size: .78rem; }
+  .nav-links { gap: 12px; font-size: .76rem; }
   .hero h1 { font-size: 1.8rem; }
   .figure figcaption, figcaption { font-size: .84rem; }
 }
