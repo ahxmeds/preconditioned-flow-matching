@@ -602,7 +602,6 @@ pre.code code, .bibtex code { font-family: inherit; }
 
 @media (max-width: 620px) {
   body { font-size: 16px; }
-  .nav-links a:nth-child(2), .nav-links a:nth-child(4) { display: none; }
   .hero { padding-top: 52px; }
   .table-scroll { border-radius: 10px; }
   thead th, tbody td { padding: 9px 10px; }
@@ -697,3 +696,31 @@ figure .figure, .figure figcaption { max-width: 100%; width: 100%; box-sizing: b
 .claim .eq .katex { font-size: 1.36em; }
 .step .eq { padding: 12px 10px; }
 .claim .eq { padding: 12px 10px; }
+
+/* ---------------------------------------------------------- phone layout */
+.brand-short { display: none; }
+
+@media (max-width: 720px) {
+  .brand-long { display: none; }
+  .brand-short { display: inline; }
+  .nav-inner { gap: 12px; padding: 0 14px; }
+  .nav-links { gap: 14px; }
+  .nav-links a { padding: 9px 0; display: inline-block; }   /* bigger tap targets */
+  .wrap { padding: 0 16px; }
+  .hero { padding: 48px 0 18px; }
+  .hero h1 { font-size: clamp(1.95rem, 8.4vw, 2.5rem); }
+  .authors { font-size: .95rem; line-height: 1.75; }
+  .cta { gap: 8px; }
+  .section { padding: 44px 0; scroll-margin-top: 64px; }
+  .section h2 { font-size: 1.6rem; }
+  .step, .claim { padding: 22px 18px; }
+  .eq { padding: 10px 8px; }
+  .step .eq .katex, .claim .eq .katex { font-size: 1.18em; }  /* fits the narrower card */
+  .algobox { padding: 16px 16px 12px; }
+}
+
+@media (max-width: 420px) {
+  .nav-links { gap: 10px; font-size: .78rem; }
+  .hero h1 { font-size: 1.8rem; }
+  .figure figcaption, figcaption { font-size: .84rem; }
+}
