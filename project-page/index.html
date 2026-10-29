@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Preconditioned Flow Matching — NeurIPS 2026</title>
+<meta name="description" content="Preconditioned Flow Matching: reshaping the geometry of the flow-matching regression problem. NeurIPS 2026.">
+<meta name="author" content="Shadab Ahamed, Eshed Gal, Md Shahriar Rahim Siddiqui, Simon Ghyselincks, Moshe Eliasof, Eldad Haber">
+<meta property="og:title" content="Preconditioned Flow Matching">
+<meta property="og:description" content="When the covariance of the intermediate distributions is ill-conditioned, flow matching stalls along low-variance directions. Preconditioning fixes the geometry.">
+<meta property="og:type" content="article">
+<meta property="og:image" content="assets/figures/fig1_concept.png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+<link rel="stylesheet" href="styles.css?v=20261042">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230d1117'/%3E%3Cpath d='M22 62 C42 18, 58 82, 78 38' stroke='%23ffb020' stroke-width='9' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+</head>
+<body>
+
+<nav class="nav" aria-label="Section navigation">
+  <div class="nav-inner">
+    <a class="nav-brand" href="#top">Preconditioned Flow Matching</a>
+    <div class="nav-links">
+      <a href="#video">Video</a>
+      <a href="#abstract">Abstract</a>
+      <a href="#method">Method</a>
+      <a href="#results">Results</a>
+      <a href="#cite">Cite</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <p class="venue"><span class="dot" aria-hidden="true"></span> NeurIPS 2026</p>
+    <h1>Preconditioned Flow Matching</h1>
+    <p class="tagline">Reshaping the geometry that flow matching has to regress</p>
+
+    <p class="authors">
+      <span>Shadab Ahamed<sup>1</sup></span>,
+      <span>Eshed Gal<sup>1</sup></span>,
+      <span>Md Shahriar Rahim Siddiqui<sup>1</sup></span>,
+      <span>Simon Ghyselincks<sup>1</sup></span>,
+      <span>Moshe Eliasof<sup>2</sup></span>,
+      <span>Eldad Haber<sup>1</sup></span>
+    </p>
+    <p class="affils"><sup>1</sup>University of British Columbia &nbsp;·&nbsp; <sup>2</sup>University of Cambridge</p>
+
+    <div class="cta">
+      <a class="btn btn-primary" href="https://arxiv.org/abs/2603.02337" target="_blank" rel="noopener">Paper</a>
+      <a class="btn" href="https://arxiv.org/pdf/2603.02337" target="_blank" rel="noopener">PDF</a>
+      <a class="btn" href="https://github.com/ahxmeds/preconditioned-flow-matching" target="_blank" rel="noopener">Code</a>
+      <a class="btn" href="#cite">BibTeX</a>
+    </div>
+  </div>
+</header>
+
+<main>
+<!-- ------------------------------------------------------------------ video -->
+<section class="section" id="video">
+  <div class="wrap">
+    <div class="video-card">
+      <div class="player" id="player">
+        <div class="video-wrap">
+        <video class="video" id="concept-video" playsinline muted preload="none" controls
+               poster="assets/video/pfm_concept_poster.jpg"
+               aria-label="Concept video: how preconditioning reshapes the flow-matching path">
+          <source src="assets/video/pfm_concept.mp4" type="video/mp4">
+          <source src="assets/video/pfm_concept.webm" type="video/webm">
+          Your browser does not support the video tag.
+          <a href="assets/video/pfm_concept.mp4">Download the video</a>.
+        </video>
+
+        <button class="bigplay" id="bigplay" type="button" aria-label="Play video">
+          <svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>
+          <svg class="i-replay" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5V2L7 6l5 4V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z"/></svg>
+        </button>
+        </div>
+
+        <div class="controls">
+          <button class="ic" id="playpause" type="button" aria-label="Play">
+            <svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>
+            <svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h3.2v14H7zM13.8 5H17v14h-3.2z"/></svg>
+          </button>
+          <div class="scrub" id="scrub" role="slider" tabindex="0"
+               aria-label="Seek in video" aria-valuemin="0" aria-valuemax="90" aria-valuenow="0">
+            <div class="scrub-track">
+              <div class="scrub-buffer" id="buffer"></div>
+              <div class="scrub-fill" id="fill"></div>
+            </div>
+            <div class="ticks" id="ticks" aria-hidden="true"></div>
+            <div class="scrub-thumb" id="thumb" aria-hidden="true"></div>
+          </div>
+          <span class="time" id="time" aria-live="off">0:00 / 1:30</span>
+          <button class="ic wide" id="speed" type="button" aria-label="Playback speed">1×</button>
+          <button class="ic" id="fs" type="button" aria-label="Fullscreen">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5v2H6v3zm11-5h5v5h-2V6h-3zM4 15h2v3h3v2H4zm14 0h2v5h-5v-2h3z"/></svg>
+          </button>
+        </div>
+
+        <div class="chapters" id="chapters" aria-label="Chapters"></div>
+      </div>
+      <div class="video-meta">
+        <div>
+          <h3>The idea in 90 seconds</h3>
+          <p>
+            A reversible map <em>P</em> moves the data to a representation where the flow's intermediate
+            distributions are well conditioned; the flow is trained there, and samples are mapped back with
+            <em>P</em><sup>−1</sup>. Both a single anisotropic Gaussian and a six-mode mixture are carried
+            through the same four steps, and compared with standard FM at an identical budget. Rendered from real
+            runs of the released code (three seeds, fixed budget).
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- --------------------------------------------------------------- abstract -->
+<section class="section" id="abstract">
+  <div class="wrap narrow">
+    <p class="eyebrow">Abstract</p>
+    <h2>Geometric optimization, not model expressiveness, is the bottleneck</h2>
+    <p class="lead">
+      Flow matching learns vector fields by regressing stochastic velocity targets along intermediate
+      distributions \(p_t\). We identify a geometric optimization bottleneck in this
+      regression problem: when the covariance \(\Sigma_t\) of \(p_t\) is
+      ill-conditioned, gradient-based training rapidly fits high-variance directions while making slow
+      progress along low-variance ones.
+    </p>
+    <p>
+      In an exactly solvable Gaussian setting, we prove that the excess risk is weighted by
+      \(\Sigma_t\), and that both gradient descent and stochastic gradient descent inherit
+      condition-number-dependent convergence. We then extend the analysis to Gaussian mixtures, showing
+      that multimodality does not average away this effect; instead, the slowest and worst-conditioned
+      component can control optimization.
+    </p>
+    <p>
+      Motivated by this analysis, we propose <strong>preconditioned flow matching</strong>, a
+      precondition-then-match framework that transforms the target distribution into a more isotropic
+      representation, trains the main flow in the transformed space, and maps generated samples back
+      through the inverse transformation. We show theoretically that preconditioning reshapes the
+      intermediate FM path and improves its conditioning. Across controlled Gaussian and Gaussian-mixture
+      experiments, latent MNIST and other high-resolution image datasets up to 512×512, preconditioning
+      improves path-conditioning diagnostics, low-eigenvalue recovery, FID, MMD, precision and recall.
+      Compute-matched baselines and preconditioner-quality ablations further show that the gains are not
+      explained merely by additional preconditioner parameters, but by improved geometry of the downstream
+      flow matching problem.
+    </p>
+  </div>
+</section>
+
+<!-- ----------------------------------------------------------------- claims -->
+<section class="section tinted">
+  <div class="wrap">
+    <p class="eyebrow">Three observations</p>
+    <h2>Why a small loss can hide a bad model</h2>
+    <div class="cards three">
+      <article class="claim">
+        <p class="claim-num">01</p>
+        <h3>Excess risk is weighted by \(\Sigma_t\)</h3>
+        <p>For linear predictors the population risk splits exactly into an irreducible floor and a
+          quadratic form in the covariance of the intermediate distribution.</p>
+        <p class="eq">$$L_t(A) - L_t^{\star} = \mathrm{Tr}\!\left[(A - A^{\star})\,\Sigma_t\,(A - A^{\star})^{\top}\right]$$</p>
+        <p>Where \(\sigma_i(t)\) is small, a loss below \(\varepsilon\) still permits a velocity error up to
+          \(\sqrt{\varepsilon/\sigma_i(t)}\).</p>
+      </article>
+      <article class="claim">
+        <p class="claim-num">02</p>
+        <h3>Convergence scales with \(\kappa(\Sigma_t)\)</h3>
+        <p>Gradient descent on the same quadratic converges linearly, but the iteration count to reduce the
+          error by ε grows with the condition number of the intermediate covariance.</p>
+        <p class="eq">$$k = O\!\left(\kappa(\Sigma_t)\cdot\log(1/\varepsilon)\right)$$</p>
+        <p>At a fixed \(t\) the conditioning is</p>
+        <p class="eq">$$\kappa(\Sigma_t) = \frac{(1-t)^2 + t^2\lambda_{\max}}{(1-t)^2 + t^2\lambda_{\min}}$$</p>
+        <p>with \(\lambda\) the eigenvalues of the target covariance.</p>
+        <p>Scalar time reweighting rescales the loss but cannot remove this directional stiffness.</p>
+      </article>
+      <article class="claim">
+        <p class="claim-num">03</p>
+        <h3>Mixtures do not average it away</h3>
+        <p>With component-wise dynamics, the whole mixture is governed by the slowest eigendirection across
+          all components — one badly conditioned mode can set the time scale for the entire model.</p>
+        <p class="eq">$$\mathrm{rate} \;\propto\; \min_{k,i}\,\sigma_{k,i}(t)$$</p>
+        <p>Anisotropy gets amplified rather than diluted by multimodality.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ----------------------------------------------------------------- method -->
+<section class="section" id="method">
+  <div class="wrap">
+    <p class="eyebrow">Method</p>
+    <h2>Precondition, match, map back</h2>
+    <p class="lead">
+      Preconditioning does not change the generative model or its sampling ODE. It changes the
+      representation in which the flow is trained, so that the regression problem it solves is
+      well conditioned.
+    </p>
+
+    <figure class="figure fig-small">
+      <img src="assets/figures/fig1_concept.png" alt="Top: standard flow matching transports noise to an anisotropic target. Bottom: a preconditioner maps the target to a better-conditioned space, the flow is trained there, and samples are mapped back." loading="lazy">
+      <figcaption>
+        <strong>Precondition-then-match.</strong> Top: standard FM learns through anisotropic intermediate
+        distributions, which stagnates optimization. Bottom: a reversible preconditioner <em>P</em> maps the
+        target to a more Gaussian-like space, improving the conditioning of the transport path; samples are
+        mapped back with <em>P</em><sup>−1</sup>.
+      </figcaption>
+    </figure>
+
+    <div class="steps">
+      <div class="step">
+        <span class="step-tag">Step 1</span>
+        <h3>Precondition</h3>
+        <p>Learn a reversible map <em>P</em> (normalizing flow, or a low-capacity flow model) that pushes the
+          target toward an isotropic representation:</p>
+        <p class="eq">$$\tilde{x}_1 = P(x_1), \qquad \mathrm{Cov}(\tilde{x}_1) \approx I$$</p>
+      </div>
+      <div class="step">
+        <span class="step-tag">Step 2</span>
+        <h3>Match</h3>
+        <p>Train the unchanged FM objective on the transformed path, from the same Gaussian reference. With the
+          sincos schedule used in every experiment here, \(c(t)=\cos(\pi t/2)\), \(s(t)=\sin(\pi t/2)\):</p>
+        <p class="eq">$$\tilde{x}_t = \cos\!\frac{\pi t}{2}\,x_0 + \sin\!\frac{\pi t}{2}\,\tilde{x}_1, \qquad x_0 \sim \mathcal{N}(0, I)$$</p>
+      </div>
+      <div class="step">
+        <span class="step-tag">Step 3</span>
+        <h3>Map back</h3>
+        <p>Integrate the learned ODE and invert the preconditioner. Nothing else changes at sampling time:</p>
+        <p class="eq">$$\hat{x}_1 = P^{-1}\!\left(\hat{\tilde{x}}_1\right)$$</p>
+      </div>
+    </div>
+
+
+    <div class="algo-row">
+      <div class="algobox">
+        <p class="algotitle">Algorithm 1 — Precondition-then-Match</p>
+        <ol>
+          <li>Learn a reversible preconditioner \(P_\phi\) on target data, so that
+            \(\mathrm{Cov}(P_\phi(x_1)) \approx I\).</li>
+          <li>Transform the targets: \(\tilde{x}_1 = P_\phi(x_1)\).</li>
+          <li>Train \(v_\theta\) with the unchanged FM objective on the preconditioned path
+            \(\tilde{x}_t = \cos\!\frac{\pi t}{2}\,x_0 + \sin\!\frac{\pi t}{2}\,\tilde{x}_1\).</li>
+          <li>Sample \(z \sim \mathcal{N}(0,I)\) and solve \(d\tilde{x}/dt = v_\theta(\tilde{x}, t)\)
+            to obtain \(\hat{\tilde{x}}_1\).</li>
+          <li>Return \(\hat{x}_1 = P_\phi^{-1}(\hat{\tilde{x}}_1)\).</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ---------------------------------------------------------------- results -->
+<section class="section tinted" id="results">
+  <div class="wrap">
+    <p class="eyebrow">Results</p>
+    <h2>Better conditioning, better samples</h2>
+    <p class="lead">
+      Every comparison keeps the downstream generator fixed and changes only the representation in which
+      it is trained.
+    </p>
+
+    <h3 class="subhead">2D Gaussian</h3>
+    <figure class="figure wide">
+      <img src="assets/figures/fig2_gaussian.png" alt="Four panels: standard FM transport, preconditioned FM transport, MMD versus training step, and condition number versus time." loading="lazy">
+      <figcaption>
+        <strong>2D Gaussian transport with and without preconditioning.</strong> (a) Standard FM transports
+        samples from an isotropic source to an elongated target and struggles along the narrow direction.
+        (b) Preconditioned FM transports to a whitened target and maps back with the inverse preconditioner.
+        (c) Preconditioning lowers MMD and avoids early stagnation. (d) It lowers the condition number of
+        \(\Sigma_t\) along the path. Mean over 10 seeds; shaded regions are one standard deviation.
+      </figcaption>
+    </figure>
+
+    <h3 class="subhead">Gaussian mixtures</h3>
+    <figure class="figure wide">
+      <img src="assets/figures/fig3_gmm.png?v=20261035" alt="Four-row grid over GMM configurations. Columns: transported samples without preconditioning, transported samples with preconditioning, MMD during training, relative low-eigenvalue recovery error, and per-component path condition number." loading="lazy">
+      <figcaption>
+        <strong>Preconditioning improves Gaussian-mixture flow matching across controlled 2D configurations.</strong>
+        We compare standard and preconditioned flow matching on GMM targets with varying numbers of components,
+        anisotropy levels and transport distances; each row is one configuration. Columns show transported
+        samples <em>without</em> preconditioning, transported samples <em>with</em> preconditioning, MMD during
+        training, relative low-eigenvalue recovery error, and maximum per-component path condition number.
+        Across all configurations, preconditioning produces better-aligned transported samples, lower final MMD,
+        smaller low-eigenvalue error and substantially reduced path conditioning — the unpreconditioned model
+        typically captures a component's high-variance direction but distorts its low-variance one. Plots show
+        the mean over 10 independent runs; error bars and shaded regions denote one standard deviation.
+      </figcaption>
+    </figure>
+
+    <h3 class="subhead">Latent MNIST</h3>
+    <figure class="figure wide">
+      <img src="assets/figures/fig6_mnist.png" alt="MNIST samples generated by latent flow matching with no preconditioning, normalizing-flow preconditioning, and flow-matching preconditioning." loading="lazy">
+      <figcaption>
+        <strong>MNIST qualitative comparison.</strong> Latent-space flow matching under different
+        preconditioning strategies: no preconditioning (FID 5.97), normalizing-flow preconditioning
+        (FID 2.74), flow-matching preconditioning (FID 3.98).
+      </figcaption>
+    </figure>
+
+    <div class="table-block">
+      <div class="table-head">
+        <h4>Table 1 — MNIST preconditioning strategies</h4>
+        <p>Compute-matched baselines enlarge the unpreconditioned generator to match the total parameters of
+          preconditioner + flow.</p>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Preconditioning method</th>
+              <th>Compute matched</th>
+              <th>Params</th>
+              <th>FID ↓</th>
+              <th>MMD ↓ (×10<sup>−3</sup>)</th>
+              <th>Precision ↑</th>
+              <th>Recall ↑</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>No preconditioning</td><td>No</td><td>2.32M</td><td>5.97</td><td>77.10</td><td>0.5774</td><td>0.2856</td></tr>
+            <tr><td>No preconditioning</td><td>Yes</td><td>3.37M</td><td>5.42</td><td>75.46</td><td>0.5869</td><td>0.2618</td></tr>
+            <tr class="ours"><td>ZCA whitening</td><td>No</td><td>2.32M</td><td>4.20</td><td>6.25</td><td>0.6022</td><td>0.3107</td></tr>
+            <tr class="ours"><td>ZCA whitening</td><td>Yes</td><td>3.37M</td><td>4.02</td><td>7.02</td><td>0.6117</td><td>0.2885</td></tr>
+            <tr class="ours"><td>Normalizing flow</td><td>No</td><td>3.37M</td><td class="best">2.74</td><td class="best">2.95</td><td>0.7271</td><td>0.3561</td></tr>
+            <tr class="ours"><td>Flow matching preconditioner</td><td>No</td><td>3.37M</td><td>3.98</td><td>3.02</td><td class="best">0.8440</td><td class="best">0.5486</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <h3 class="subhead">Image benchmarks</h3>
+    <div class="table-block">
+      <div class="table-head">
+        <h4>Table 2 — FID, precision and recall across datasets</h4>
+        <p>Latent space of a pretrained VAE for every dataset except CIFAR-10, which is modelled in pixel space.</p>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr><th>Dataset</th><th>Method</th><th>FID ↓</th><th>Precision ↑</th><th>Recall ↑</th></tr>
+          </thead>
+          <tbody>
+            <tr><td rowspan="2">LSUN Churches <span class="dim">256×256</span></td><td>No preconditioner</td><td>19.53</td><td>0.4540</td><td>0.3239</td></tr>
+            <tr class="ours"><td>FM preconditioner</td><td class="best">14.47</td><td class="best">0.5313</td><td class="best">0.3255</td></tr>
+            <tr><td rowspan="2">Oxford Flowers-102 <span class="dim">256×256</span></td><td>No preconditioner</td><td>23.82</td><td>0.5213</td><td>0.2761</td></tr>
+            <tr class="ours"><td>FM preconditioner</td><td class="best">22.64</td><td class="best">0.5428</td><td class="best">0.2854</td></tr>
+            <tr><td rowspan="2">AFHQ Cats <span class="dim">512×512</span></td><td>No preconditioner</td><td>7.11</td><td>0.7764</td><td class="best">0.5396</td></tr>
+            <tr class="ours"><td>FM preconditioner</td><td class="best">4.86</td><td class="best">0.8320</td><td>0.5297</td></tr>
+            <tr><td rowspan="2">CIFAR-10 <span class="dim">32×32</span></td><td>No preconditioner</td><td>4.15</td><td class="best">0.8097</td><td>0.5878</td></tr>
+            <tr class="ours"><td>FM preconditioner</td><td class="best">4.02</td><td>0.7856</td><td class="best">0.5892</td></tr>
+            <tr><td rowspan="2">ImageNet-1k <span class="dim">64×64</span></td><td>No preconditioner</td><td>8.66</td><td>0.7800</td><td>0.6339</td></tr>
+            <tr class="ours"><td>FM preconditioner</td><td class="best">4.98</td><td class="best">0.8172</td><td class="best">0.6432</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <figure class="figure wide">
+      <img src="assets/figures/qual_churches.jpg" alt="LSUN Churches samples: standard flow matching above, flow-based preconditioning below." loading="lazy">
+      <figcaption><strong>LSUN Churches, 256×256.</strong> <strong>Top:</strong> standard FM. <strong>Bottom:</strong> FM with a flow preconditioner.</figcaption>
+    </figure>
+
+    <figure class="figure wide">
+      <img src="assets/figures/qual_flowers.jpg" alt="Oxford Flowers-102 samples: standard flow matching above, preconditioned below." loading="lazy">
+      <figcaption><strong>Oxford Flowers-102, 256×256.</strong> <strong>Top:</strong> standard FM. <strong>Bottom:</strong> FM with a flow preconditioner.</figcaption>
+    </figure>
+
+    <figure class="figure wide">
+      <img src="assets/figures/qual_cats.jpg" alt="AFHQ Cats samples: standard flow matching above, preconditioned below." loading="lazy">
+      <figcaption><strong>AFHQ Cats, 512×512.</strong> <strong>Top:</strong> standard FM. <strong>Bottom:</strong> FM with a flow preconditioner.</figcaption>
+    </figure>
+
+    <figure class="figure wide">
+      <img src="assets/figures/qual_cifar.jpg" alt="CIFAR-10 samples: standard flow matching left, preconditioned right." loading="lazy">
+      <figcaption><strong>CIFAR-10, 32×32.</strong> <strong>Left:</strong> standard FM. <strong>Right:</strong> FM with a flow preconditioner.</figcaption>
+    </figure>
+
+    <figure class="figure wide">
+      <img src="assets/figures/qual_imagenet.jpg?v=20261030" alt="ImageNet-1k samples: standard flow matching above, preconditioned below." loading="lazy">
+      <figcaption><strong>ImageNet-1k, 64×64.</strong> <strong>Left:</strong> standard FM. <strong>Right:</strong> FM with a flow preconditioner.</figcaption>
+    </figure>
+
+    <h3 class="subhead">Conditioning in real representations</h3>
+    <figure class="figure wide">
+      <img src="assets/figures/fig5_kappa.png?v=20261030" alt="Condition number of the intermediate covariance over time for MNIST and ImageNet-1k latent spaces, with and without preconditioning." loading="lazy">
+      <figcaption>
+        <strong>Conditioning of intermediate flow matching distributions.</strong> The condition number
+        \(\kappa(\Sigma_t)\) over \(t\) for <strong>(a)</strong> MNIST and <strong>(b)</strong> ImageNet-1k
+        latent representations.
+        Without preconditioning the intermediate distributions become increasingly ill-conditioned as
+        \(t \to 1\); both NF and FM preconditioning substantially reduce \(\kappa(\Sigma_t)\),
+        especially near the data endpoint.
+      </figcaption>
+    </figure>
+
+    <figure class="figure figure-pair">
+      <div class="pair-grid">
+        <img src="assets/figures/fig_ablation_params.png?v=20261033" alt="(a) FID versus number of preconditioner parameters for NF and FM preconditioners, against the compute-matched and 2.32M baselines." loading="lazy">
+        <img src="assets/figures/fig_ablation_epochs.png?v=20261033" alt="(b) FID versus number of preconditioner training epochs for NF and FM preconditioners, against both baselines." loading="lazy">
+      </div>
+      <figcaption>
+        <strong>Is it just extra parameters? Preconditioner quality ablation on MNIST.</strong>
+        We evaluate image generation quality as a function of preconditioner capacity and training progress
+        using FID computed on 50k generated samples. <strong>(a)</strong> Increasing the number of
+        preconditioner parameters improves generation quality for both normalizing flow (NF) and flow
+        matching (FM) preconditioners. The blue dashed line denotes the original unpreconditioned FM baseline
+        with 2.32M parameters, and the black dash-dotted curve shows a compute-matched unpreconditioned
+        baseline whose parameter count is increased by approximately the same number of parameters as the
+        preconditioner. Preconditioning improves FID more substantially than simply allocating the same
+        additional parameter budget to the unpreconditioned generator. <strong>(b)</strong> Increasing the
+        number of preconditioner training epochs also improves FID, with the gains eventually beginning to
+        saturate. The dotted horizontal line shows the compute-matched unpreconditioned baseline with 3.37M
+        parameters, and the dashed horizontal line shows the original 2.32M-parameter baseline. Across both
+        ablations, NF preconditioning yields the strongest gains, while FM preconditioning also consistently
+        improves over the unpreconditioned baselines.
+      </figcaption>
+    </figure>
+
+    <div class="notecard note-row">
+      <h3>What we do <em>not</em> claim</h3>
+      <ul>
+        <li>Preconditioning is not a new backbone, sampler or loss: the downstream FM model and its ODE are unchanged.</li>
+        <li>It does not mainly accelerate the early drop of the loss; it prevents optimization from plateauing along suppressed directions.</li>
+        <li>It is complementary to latent modelling, optimal flow matching and schedule design.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ------------------------------------------------------------------- cite -->
+<section class="section tinted" id="cite">
+  <div class="wrap narrow">
+    <p class="eyebrow">Citation</p>
+    <h2>Cite this work</h2>
+    <div class="bibtex">
+      <button class="btn btn-ghost copy" data-copy="bib" type="button">Copy</button>
+      <pre id="bib"><code>@inproceedings{ahamed2026preconditioned,
+  title     = {Preconditioned Flow Matching},
+  author    = {Ahamed, Shadab and Gal, Eshed and Siddiqui, Md Shahriar Rahim and
+               Ghyselincks, Simon and Eliasof, Moshe and Haber, Eldad},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2026}
+}</code></pre>
+    </div>
+    <p class="small">
+      The paper is also on arXiv: <a href="https://arxiv.org/abs/2603.02337">2603.02337</a>.
+    </p>
+
+    <h3 class="subhead">License</h3>
+    <div class="license">
+      <div>
+        <h4>Code — Apache 2.0</h4>
+        <p>The released implementation, including this project page and the script that renders its video,
+          is distributed under the Apache License, Version 2.0. See
+          <code>LICENSE</code> in the repository.</p>
+      </div>
+      <div>
+        <h4>Paper, figures and video — CC BY 4.0</h4>
+        <p>The paper text, its figures and the concept video are licensed under Creative Commons
+          Attribution 4.0. Reuse is welcome with attribution to the authors.</p>
+      </div>
+    </div>
+    <p class="small">
+      Third-party assets (datasets, pretrained VAEs, and the sample grids generated from them) remain under
+      the licenses of their original sources.
+    </p>
+  </div>
+</section>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <p>
+      <a href="https://arxiv.org/abs/2603.02337">arXiv</a> ·
+      <a href="https://github.com/ahxmeds/preconditioned-flow-matching">GitHub</a> ·
+      <a href="#top">Back to top</a>
+    </p>
+    <p class="small">Page layout inspired by academic project pages; all figures are taken from the paper.</p>
+  </div>
+</footer>
+
+<div class="lightbox" id="lightbox" aria-hidden="true" role="dialog" aria-label="Enlarged figure">
+  <button class="lightbox-close" id="lightbox-close" aria-label="Close">×</button>
+  <img id="lightbox-img" alt="">
+</div>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script src="main.js?v=20261042"></script>
+</body>
+</html>

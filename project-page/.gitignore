@@ -1,0 +1,5 @@
+# build artefacts of the concept video (regenerate with build/make_assets.py)
+build/*.npz
+build/*.pt
+build/preview/
+build/frames/
