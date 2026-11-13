@@ -11,14 +11,14 @@
 <meta property="og:type" content="article">
 <meta property="og:image" content="assets/figures/fig1_concept.png">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
-<link rel="stylesheet" href="styles.css?v=20261042">
+<link rel="stylesheet" href="styles.css?v=20261044">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230d1117'/%3E%3Cpath d='M22 62 C42 18, 58 82, 78 38' stroke='%23ffb020' stroke-width='9' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
 </head>
 <body>
 
 <nav class="nav" aria-label="Section navigation">
   <div class="nav-inner">
-    <a class="nav-brand" href="#top">Preconditioned Flow Matching</a>
+    <a class="nav-brand" href="#top"><span class="brand-long">Preconditioned Flow Matching</span><span class="brand-short">PFM</span></a>
     <div class="nav-links">
       <a href="#video">Video</a>
       <a href="#abstract">Abstract</a>
@@ -43,7 +43,10 @@
       <span>Moshe Eliasof<sup>2</sup></span>,
       <span>Eldad Haber<sup>1</sup></span>
     </p>
-    <p class="affils"><sup>1</sup>University of British Columbia &nbsp;·&nbsp; <sup>2</sup>University of Cambridge</p>
+    <p class="affils">
+      <sup>1</sup>University of British Columbia, Vancouver, Canada<br>
+      <sup>2</sup>Ben-Gurion University of the Negev, Beersheba, Israel
+    </p>
 
     <div class="cta">
       <a class="btn btn-primary" href="https://arxiv.org/abs/2603.02337" target="_blank" rel="noopener">Paper</a>
@@ -59,38 +62,14 @@
 <section class="section" id="video">
   <div class="wrap">
     <div class="video-card">
-      <video class="video" id="explainer" controls preload="metadata"
-             poster="assets/video/pfm_explainer_poster.jpg"
-             aria-label="Narrated explainer: Preconditioned Flow Matching, Neural Information Processing Systems 2026">
-        <source src="assets/video/pfm_explainer.mp4" type="video/mp4">
-        Your browser does not support the video tag.
-        <a href="assets/video/pfm_explainer.mp4">Download the video</a>.
-      </video>
-      <div class="video-meta">
-        <div>
-          <h3>Full explainer, narrated — 3:20</h3>
-          <p>
-            Starts from first principles: what flow matching does, why an anisotropic target makes the
-            straight-line path ill-conditioned &mdash; with the condition number
-            &kappa;(&Sigma;<sub>t</sub>) of the intermediate distribution <em>p<sub>t</sub></em> defined on
-            screen &mdash; and how preconditioning changes the space the flow is trained in, not the model.
-            Continues through the controlled MNIST experiment, synthesis across resolutions, qualitative
-            samples and the capacity ablations. Voice-over, 1920&times;1080.
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <div class="video-card" style="margin-top:26px">
       <div class="player" id="player">
         <div class="video-wrap">
-        <video class="video" id="concept-video" playsinline muted preload="none" controls
-               poster="assets/video/pfm_concept_poster.jpg"
-               aria-label="Concept video: how preconditioning reshapes the flow-matching path">
-          <source src="assets/video/pfm_concept.mp4" type="video/mp4">
-          <source src="assets/video/pfm_concept.webm" type="video/webm">
+        <video class="video" id="concept-video" playsinline preload="none" controls
+               poster="assets/video/pfm_explainer_poster.jpg"
+               aria-label="Narrated explainer: Preconditioned Flow Matching, Neural Information Processing Systems 2026">
+          <source src="assets/video/pfm_explainer.mp4" type="video/mp4">
           Your browser does not support the video tag.
-          <a href="assets/video/pfm_concept.mp4">Download the video</a>.
+          <a href="assets/video/pfm_explainer.mp4">Download the video</a>.
         </video>
 
         <button class="bigplay" id="bigplay" type="button" aria-label="Play video">
@@ -105,7 +84,7 @@
             <svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h3.2v14H7zM13.8 5H17v14h-3.2z"/></svg>
           </button>
           <div class="scrub" id="scrub" role="slider" tabindex="0"
-               aria-label="Seek in video" aria-valuemin="0" aria-valuemax="90" aria-valuenow="0">
+               aria-label="Seek in video" aria-valuemin="0" aria-valuemax="202" aria-valuenow="0">
             <div class="scrub-track">
               <div class="scrub-buffer" id="buffer"></div>
               <div class="scrub-fill" id="fill"></div>
@@ -113,7 +92,7 @@
             <div class="ticks" id="ticks" aria-hidden="true"></div>
             <div class="scrub-thumb" id="thumb" aria-hidden="true"></div>
           </div>
-          <span class="time" id="time" aria-live="off">0:00 / 1:30</span>
+          <span class="time" id="time" aria-live="off">0:00 / 3:22</span>
           <button class="ic wide" id="speed" type="button" aria-label="Playback speed">1×</button>
           <button class="ic" id="fs" type="button" aria-label="Fullscreen">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5v2H6v3zm11-5h5v5h-2V6h-3zM4 15h2v3h3v2H4zm14 0h2v5h-5v-2h3z"/></svg>
@@ -124,7 +103,7 @@
       </div>
       <div class="video-meta">
         <div>
-          <h3>The idea in 90 seconds — silent</h3>
+          <h3>The full explainer — 3:22</h3>
           <p>
             A reversible map <em>P</em> moves the data to a representation where the flow's intermediate
             distributions are well conditioned; the flow is trained there, and samples are mapped back with
@@ -511,6 +490,6 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"
         onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
-<script src="main.js?v=20261042"></script>
+<script src="main.js?v=20261044"></script>
 </body>
 </html>
