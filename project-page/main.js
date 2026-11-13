@@ -21,15 +21,15 @@
 
     var CHAPTERS = [
       { t: 0, label: "Intro" },
-      { t: 9, label: "Flow matching" },
-      { t: 33, label: "Condition number" },
-      { t: 51, label: "The problem" },
-      { t: 65, label: "What goes wrong" },
-      { t: 73, label: "Precondition" },
-      { t: 90, label: "Map back" },
-      { t: 122, label: "Same budget" },
-      { t: 135, label: "Evidence" },
-      { t: 153, label: "Results" }
+      { t: 5, label: "Problem" },
+      { t: 18, label: "What fails" },
+      { t: 23, label: "Gaussian: the fix" },
+      { t: 39, label: "Gaussian: compare" },
+      { t: 45, label: "Mixture: target" },
+      { t: 54, label: "Mixture: flow lines" },
+      { t: 59, label: "Mixture: learned flow" },
+      { t: 71, label: "Same budget" },
+      { t: 77, label: "Evidence" }
     ];
     var SPEEDS = [1, 1.5, 2, 0.5];
     var speedIdx = 0;
